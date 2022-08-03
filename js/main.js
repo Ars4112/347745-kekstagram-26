@@ -6,7 +6,7 @@ import { uploadFormSuccessSubmit, uploadFormErrorSubmit, photoUploadFormSubmit }
 applyPhotoEffects();
 
 getData((photos) => {
-  getData(createRandomPhoto);
+  createRandomPhoto(photos);
   getPhotoFilters(photos);
 }, showAlert);
 

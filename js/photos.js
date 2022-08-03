@@ -32,7 +32,7 @@ const randomPhotoTempleteElement = document.querySelector('#picture').content.qu
 const scaleSmallerButtonElement = document.querySelector('.scale__control--smaller');
 const scaleBiggerButtonElement = document.querySelector('.scale__control--bigger');
 const scaleValueInputElement = document.querySelector('.scale__control--value');
-const previewPhotoElement = document.querySelector('.img-upload__preview');
+const previewPhotoElement = document.querySelector('.img-upload__preview img');
 
 const commentListFragment = document.createDocumentFragment();
 const previewUsersPhotosFragment = document.createDocumentFragment();
@@ -70,7 +70,7 @@ const createRandomFullPhoto = ({url, likes, description, comments}) => {
 
   let commentCount = 0;
 
-  const commentsAdd = () => {
+  const addComments = () => {
     const commentLenght = commentCount += MAX_COMMENTS_AMOUNT;
     comments.slice(0, commentLenght ).forEach((comment) => {
       const commentElementCopy = commentItemElement.cloneNode(true);
@@ -94,10 +94,10 @@ const createRandomFullPhoto = ({url, likes, description, comments}) => {
     }
   };
 
-  commentsAdd();
+  addComments();
 
   commentLoaderElement.addEventListener ('click', () => {
-    commentsAdd();
+    addComments();
   });
 
   document.addEventListener('keydown', onFullPhotoEscKeydown);
@@ -232,11 +232,11 @@ const changeClassButtons = (activeButton) => {
   activeButton.classList.add('img-filters__button--active');
 };
 
-const defaultSorting = (photos) => photos.slice();
+const sortDefault = (photos) => photos.slice();
 
-const randomSorting = (photos) => photos.slice().sort(() => 0.5 - Math.random()).slice(0, RANDOM_PHOTO_AMOUNT);
+const sortRandom = (photos) => photos.slice().sort(() => 0.5 - Math.random()).slice(0, RANDOM_PHOTO_AMOUNT);
 
-const popularSorting = (photos) => photos.slice().sort((photoA, photoB) => photoB.comments.length - photoA.comments.length);
+const sortPopular = (photos) => photos.slice().sort((photoA, photoB) => photoB.comments.length - photoA.comments.length);
 
 const deleteUsersPhotos = () => {
   const usersPhotos = document.querySelectorAll('.picture');
@@ -255,17 +255,17 @@ export const getPhotoFilters = (photos) => {
 
   sortDefaultButtonElement.addEventListener('click', (evt) => {
     changeClassButtons(evt.target);
-    getFilterDebounce(defaultSorting(photos));
+    getFilterDebounce(sortDefault(photos));
   });
 
   sortRandomButtonElement.addEventListener('click', (evt) => {
     changeClassButtons(evt.target);
-    getFilterDebounce(randomSorting(photos));
+    getFilterDebounce(sortRandom(photos));
   });
 
   sortPopulartButtonElement.addEventListener('click', (evt) => {
     changeClassButtons(evt.target);
-    getFilterDebounce(popularSorting(photos));
+    getFilterDebounce(sortPopular(photos));
   });
 };
 

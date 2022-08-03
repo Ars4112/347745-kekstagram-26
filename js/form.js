@@ -25,7 +25,36 @@ const CORRECT_HASHTAG_MESSAGE = 'Invalid hashtag';
 const ORIGINAL_HASHTAG_MESSAGE = 'All hashtags should be unique';
 const AMOUNT_HASHTAG_MESSAGE = 'Not more than 5 hashtags is allowed';
 
+
+let pristine = new Pristine (photoUploadFormElement, {
+  classTo: 'img-upload__field-wrapper',
+  errorTextParent: 'img-upload__field-wrapper',
+});
+
+const checkHashtagCorrect = (value) => {
+  const hashtags = value.trim().toLowerCase().split(/\s+/);
+  const re = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
+  return value === ''|| hashtags.every((hashtag) => re.test(hashtag));
+};
+
+pristine.addValidator(textHashtagsElement, checkHashtagCorrect, CORRECT_HASHTAG_MESSAGE);
+
+const checkHashtagAmount = (value) => {
+  const hashtags = value.trim().toLowerCase().split(/\s+/);
+  return hashtags.length <= MAX_HASHTAGS_AMOUNT;
+};
+
+pristine.addValidator(textHashtagsElement, checkHashtagAmount, AMOUNT_HASHTAG_MESSAGE);
+
+const checkHashtagOriginal = (value) => {
+  const hashtags = value.trim().toLowerCase().split(/\s+/);
+  return new Set(hashtags).size === hashtags.length;
+};
+
+pristine.addValidator(textHashtagsElement, checkHashtagOriginal, ORIGINAL_HASHTAG_MESSAGE);
+
 export const closeUploadForm = () => {
+  pristine.destroy();
   photoEditOverlayElement.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   document.removeEventListener('keydown', onFormEscKeydown);
@@ -40,6 +69,15 @@ function onFormEscKeydown (evt) {
 }
 
 const openUploadForm = () => {
+  pristine = new Pristine (photoUploadFormElement, {
+    classTo: 'img-upload__field-wrapper',
+    errorTextParent: 'img-upload__field-wrapper',
+  });
+
+  pristine.addValidator(textHashtagsElement, checkHashtagCorrect, CORRECT_HASHTAG_MESSAGE);
+  pristine.addValidator(textHashtagsElement, checkHashtagAmount, AMOUNT_HASHTAG_MESSAGE);
+  pristine.addValidator(textHashtagsElement, checkHashtagOriginal, ORIGINAL_HASHTAG_MESSAGE);
+
   photoEditOverlayElement.classList.remove('hidden');
   bodyElement.classList.add('modal-open');
   document.addEventListener('keydown', onFormEscKeydown);
@@ -61,32 +99,6 @@ const onNotEscKeydown = (evt) => {
 textHashtagsElement.addEventListener('keydown', onNotEscKeydown);
 textCommentElement.addEventListener('keydown', onNotEscKeydown);
 
-const pristine = new Pristine (photoUploadFormElement, {
-  classTo: 'img-upload__field-wrapper',
-  errorTextParent: 'img-upload__field-wrapper',
-});
-
-const hashtagCheckCorrect = (value) => {
-  const hashtags = value.trim().toLowerCase().split(' ');
-  const re = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
-  return value === ''|| hashtags.every((hashtag) => re.test(hashtag));
-};
-
-pristine.addValidator(textHashtagsElement, hashtagCheckCorrect, CORRECT_HASHTAG_MESSAGE);
-
-const hashtagCheckAmount = (value) => {
-  const hashtags = value.trim().toLowerCase().split(' ');
-  return hashtags.length <= MAX_HASHTAGS_AMOUNT;
-};
-
-pristine.addValidator(textHashtagsElement, hashtagCheckAmount, AMOUNT_HASHTAG_MESSAGE);
-
-const hashtagCheckOriginal = (value) => {
-  const hashtags = value.trim().toLowerCase().split(' ');
-  return new Set(hashtags).size === hashtags.length;
-};
-
-pristine.addValidator(textHashtagsElement, hashtagCheckOriginal, ORIGINAL_HASHTAG_MESSAGE);
 
 const submitButtonBlock = () => {
   submitButtonElement.disabled = true;
@@ -150,38 +162,38 @@ function onErrorMessageAnyClickClose (evt) {
   }
 }
 
-const successMessageShow = () => {
+const showSuccessMessage = () => {
   bodyElement.classList.add('modal-open');
   bodyElement.append(successMessageElement);
   document.addEventListener('keydown', onSuccessMessageEscClose);
   document.addEventListener('click', onSuccessMessageAnyClickClose);
 };
 
-const successMessageClose = () => {
+const closeSuccessMessage = () => {
   bodyElement.classList.remove('modal-open');
   successMessageElement.remove();
   document.removeEventListener('keydown', onSuccessMessageEscClose);
   document.removeEventListener('click', onSuccessMessageAnyClickClose);
 };
 
-successButtonElement.addEventListener('click', () => successMessageClose());
+successButtonElement.addEventListener('click', () => closeSuccessMessage());
 
 function onSuccessMessageEscClose (evt) {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
-    successMessageClose();
+    closeSuccessMessage();
   }
 }
 
 function onSuccessMessageAnyClickClose (evt) {
   if (evt.target === successMessageElement) {
-    successMessageClose();
+    closeSuccessMessage();
   }
 }
 
 export const uploadFormSuccessSubmit = () => {
   closeUploadForm();
-  successMessageShow();
+  showSuccessMessage();
 };
 
 export const uploadFormErrorSubmit = () => {
